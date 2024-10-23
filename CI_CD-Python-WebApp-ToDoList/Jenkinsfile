@@ -52,7 +52,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
                         // Navigate to the directory containing the Kubernetes manifest files
-                        dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
+                        dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifests') {
                             sh '''
                             echo 'Updating K8S deployment manifest...'
                             cat minikube-todo-deploy.yaml
@@ -73,7 +73,7 @@ pipeline {
             steps {
                 script {
                     // Apply the Kubernetes manifest to deploy the application
-                    dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
+                    dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifests') {
                         sh '''
                         echo 'Deploying application to Kubernetes...'
                         kubectl apply -f minikube-todo-deploy.yaml
