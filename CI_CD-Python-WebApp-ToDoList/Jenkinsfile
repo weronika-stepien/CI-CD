@@ -57,8 +57,8 @@ pipeline {
                             cat minikube-todo-deploy.yaml
                 	    sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
                 	    cat minikube-todo-deploy.yaml
-                	    git config user.email "your-email@example.com"
-                	    git config user.name "your-username"
+                	    git config user.email "weronika.stepien.it@gmail.com"
+                	    git config user.name "weronikastepien"
                 	    git add minikube-todo-deploy.yaml
                 	    git commit -m "chore: update minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
                 	    git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git
