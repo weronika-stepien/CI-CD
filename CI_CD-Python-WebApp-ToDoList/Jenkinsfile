@@ -42,7 +42,7 @@ pipeline {
     	steps {
         	script {
             	// Build the Docker image
-            	sh "docker build -t ${DOCKER_IMAGE} ."
+            	sh "docker build -t ${DOCKER_IMAGE} ${DOCKERFILE_LOCATION}"
 
             	// Log in to Docker using credentials
             	sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
