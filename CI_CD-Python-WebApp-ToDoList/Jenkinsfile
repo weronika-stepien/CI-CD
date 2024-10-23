@@ -33,20 +33,24 @@ pipeline {
             }
         }
 
-        stage('Push the artifacts'){
-           steps{
-                script{
-                
-		    docker.withRegistry('https://registry.hub.docker.com', 'docker-cred') {	
-			
-                    sh '''
-                    echo 'PUSH TO REPO'
-                    docker push weronikastepien/cicd-todo:${BUILD_NUMBER}
-                    '''
-                   }
-            	}
-            }        
-        }	
+        stage('Build and Push Docker Image') {
+    	environment {
+        	DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
+        	REGISTRY_CREDENTIALS = credentials('docker-cred')
+    	}
+    	steps {
+        	script {
+            	// Build the Docker image
+            	sh "docker build -t ${DOCKER_IMAGE} ."
+
+            	// Log in to Docker using credentials
+            	sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
+
+            	// Push the Docker image
+            	sh "docker push ${DOCKER_IMAGE}"
+        	}
+    	    }
+	}
         
         stage('Checkout K8S manifest SCM'){
             steps {
