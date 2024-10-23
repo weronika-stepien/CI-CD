@@ -1,0 +1,11 @@
+Django==5.1.2
+djangorestframework==3.15.0
+django-crispy-forms==1.14.0  # For styling forms in templates
+django-filter==23.2          # For advanced filtering options
+# psycopg2-binary==2.9.8  -> PostgreSQL adapter for Django, use only if PostgreSQL is your database
+Pillow==10.0.0               # For handling images (if you're gonna include file uploads)
+gunicorn==21.2.0             # For deployment
+django-environ==0.9.0        # For environment variable management
+celery==5.3.4                # Task scheduling (if you're gonna use it)
+redis==4.6.0                 # Task queuing (if you're gonna use it)
+

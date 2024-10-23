@@ -1,0 +1,81 @@
+pipeline {
+    
+    agent any 
+    
+    environment {
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+    
+    stages {
+
+        // TO OBSERVE ANY CHANGES IN THE REPO
+        stage('Checkout'){
+           steps {
+                git credentialsId: 'github-id', 
+                url: 'https://github.com/weronika-stepien/CI-CD.git',
+                branch: 'main'
+           }
+        }
+
+        stage('Build Docker'){
+            steps{
+                script{
+
+                    // NAVIGATE TO THE SPECIFIC DIRECTORY BEFORE BUILDING
+                    dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
+
+                        sh '''
+                        echo 'BUILD DOCKER IMAGE'
+                        docker build -t weronikastepien/cicd-todo:${BUILD_NUMBER} .
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Push the artifacts'){
+           steps{
+                script{
+
+                    sh '''
+                    echo 'PUSH TO REPO'
+                    docker push weronikastepien/cicd-todo:${BUILD_NUMBER}
+                    '''
+                }
+            }
+        }
+        
+        stage('Checkout K8S manifest SCM'){
+            steps {
+  
+                git credentialsId: 'github-id', 
+                url: 'https://github.com/weronika-stepien/CI-CD.git',
+                branch: 'main'
+            }
+        }
+        
+        stage('Update K8S manifest & push to Repo'){
+            steps {
+                script{
+
+                    withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
+                        
+                        // NAVIGATE TO THE SPECIFIC DIRECTORY CONTAINING THE MANIFEST FILES
+                        dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
+                            sh '''
+                            cat deploy.yaml
+                            sed -i "s/32/${BUILD_NUMBER}/g" deploy.yaml
+                            cat deploy.yaml
+                            git add deploy.yaml
+                            git commit -m 'UPDATED THE DEPLOY YAML | JENKINS PIPELINE'
+                            git remote -v
+                            git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git HEAD:main
+                            '''                        
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+

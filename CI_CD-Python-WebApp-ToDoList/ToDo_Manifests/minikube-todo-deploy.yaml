@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: website
+  template:
+    metadata:
+      labels:
+        app: website
+    spec:
+      containers:
+      - name: todo-list
+        image: weronikastepien/cicd-todo:1
+        ports:
+          - containerPort: 8000
+        env:
+          - name: ALLOWED_HOSTS
+            valueFrom:
+              configMapKeyRef:
+                name: todo-config-map
+                key: ALLOWED_HOSTS
+
+
