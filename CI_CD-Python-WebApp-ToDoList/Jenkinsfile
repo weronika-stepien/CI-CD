@@ -55,30 +55,14 @@ pipeline {
                         dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifests') {
                             sh '''
                             cat minikube-todo-deploy.yaml
-                	    sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
-                	    cat minikube-todo-deploy.yaml
-                	    git config user.email "weronika.stepien.it@gmail.com"
-                	    git config user.name "weronikastepien"
-                	    git add minikube-todo-deploy.yaml
-                	    git commit -m "chore: update minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
-                	    git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git
-                	    git push origin HEAD:main
+                	        sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
+                	        cat minikube-todo-deploy.yaml
+                	        git add minikube-todo-deploy.yaml
+                	        git commit -m "chore: update minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
+                	        git remote -v 
+                	        git push https://github.com/weronika-stepien/CI-CD.git HEAD:main
                             '''                        
                         }
-                    }
-                }
-            }
-        }
-
-        stage('Deploy to Kubernetes') {
-            steps {
-                script {
-                    // Apply the Kubernetes manifest to deploy the application
-                    dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifests') {
-                        sh '''
-                        echo 'Deploying application to Kubernetes...'
-                        kubectl apply -f minikube-todo-deploy.yaml
-                        '''
                     }
                 }
             }
