@@ -36,14 +36,17 @@ pipeline {
         stage('Push the artifacts'){
            steps{
                 script{
-
+                
+		    docker.withRegistry('https://registry.hub.docker.com', 'docker-cred') {	
+			
                     sh '''
                     echo 'PUSH TO REPO'
                     docker push weronikastepien/cicd-todo:${BUILD_NUMBER}
                     '''
-                }
-            }
-        }
+                   }
+            	}
+            }        
+        }	
         
         stage('Checkout K8S manifest SCM'){
             steps {
