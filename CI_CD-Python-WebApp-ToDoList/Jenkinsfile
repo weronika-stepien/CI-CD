@@ -55,11 +55,11 @@ pipeline {
                         dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
                             sh '''
                             echo 'Updating K8S deployment manifest...'
-                            cat deploy.yaml
-                            sed -i "s/32/${BUILD_NUMBER}/g" deploy.yaml
-                            cat deploy.yaml
-                            git add deploy.yaml
-                            git commit -m 'chore: update deploy.yaml with build number ${BUILD_NUMBER}'
+                            cat minikube-todo-deploy.yaml
+                            sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
+                            cat minikube-todo-deploy.yaml
+                            git add minikube-todo-deploy.yaml
+                            git commit -m 'chore: update minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}'
                             git remote -v
                             git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git HEAD:main
                             '''                        
@@ -76,7 +76,7 @@ pipeline {
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
                         sh '''
                         echo 'Deploying application to Kubernetes...'
-                        kubectl apply -f deploy.yaml
+                        kubectl apply -f minikube-todo-deploy.yaml
                         '''
                     }
                 }
