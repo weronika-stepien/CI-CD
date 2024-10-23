@@ -22,32 +22,31 @@ pipeline {
            }
         }
 
-        stage('Build Docker'){
-            steps{
-                script{
+        //stage('Build Docker'){
+          //  steps{
+            //    script{
 
-                    // NAVIGATE TO THE SPECIFIC DIRECTORY BEFORE BUILDING
+                    
+              //      }
+                //}
+            //}
+        //}
+
+        stage('Build and Push Docker Image') {
+    	environment {
+        	DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
+		//DOCKERFILE_LOCATION = "CI_CD-Python-WebApp-ToDoList/ToDo/Dockerfile"
+        	REGISTRY_CREDENTIALS = credentials('docker-cred')
+    	}
+    	steps {
+        	script {
+            	// NAVIGATE TO THE SPECIFIC DIRECTORY BEFORE BUILDING
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
 
                         sh '''
                         echo 'BUILD DOCKER IMAGE'
                         docker build -t weronikastepien/cicd-todo:${BUILD_NUMBER} .
                         '''
-                    }
-                }
-            }
-        }
-
-        stage('Build and Push Docker Image') {
-    	environment {
-        	DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
-		DOCKERFILE_LOCATION = "CI_CD-Python-WebApp-ToDoList/ToDo/Dockerfile"
-        	REGISTRY_CREDENTIALS = credentials('docker-cred')
-    	}
-    	steps {
-        	script {
-            	// Build the Docker image
-            	sh "docker build -t ${DOCKER_IMAGE} ${DOCKERFILE_LOCATION}"
 
             	// Log in to Docker using credentials
             	sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
