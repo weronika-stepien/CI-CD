@@ -58,7 +58,7 @@ pipeline {
                 	        sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
                 	        cat minikube-todo-deploy.yaml
                 	        git add .
-                	        git commit -m "chore: update minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
+                	        git commit -am "CHORE: Updating minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
                 	        git remote -v 
                 	        git push https://github.com/weronika-stepien/CI-CD.git HEAD:main
                             '''                        
