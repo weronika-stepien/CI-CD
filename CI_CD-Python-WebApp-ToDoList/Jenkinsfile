@@ -3,11 +3,14 @@ pipeline {
     
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
+        DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
+        REGISTRY_CREDENTIALS = credentials('docker-cred')
     }
     
     stages {
         stage('Checkout') {
             steps {
+                // Check out the source code from the main branch
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
@@ -15,42 +18,40 @@ pipeline {
         }
 
         stage('Build and Push Docker Image') {
-            environment {
-                DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
-                REGISTRY_CREDENTIALS = credentials('docker-cred')
-            }
             steps {
                 script {
-                    // Navigate to the specific directory before building
+                    // Navigate to the directory where the Dockerfile is located
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
+                        // Build the Docker image
                         sh '''
                         echo 'BUILD DOCKER IMAGE'
-                        docker build -t ${DOCKER_IMAGE} .
+                        docker build -t ${DOCKER_IMAGE} -f Dockerfile .
                         '''
+
+                        // Log in to Docker using credentials
+                        sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
+
+                        // Push the Docker image
+                        sh "docker push ${DOCKER_IMAGE}"
                     }
-
-                    // Log in to Docker using credentials
-                    sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
-
-                    // Push the Docker image
-                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
 
-        stage('Checkout K8S manifest SCM') {
+        stage('Checkout K8S Manifest') {
             steps {
+                // Check out the repository again to access Kubernetes manifests
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
             }
         }
-        
-        stage('Update K8S manifest & push to Repo') {
+
+        stage('Update K8S Manifest & Push Changes') {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        // Navigate to the specific directory containing the manifest files
+                        // Navigate to the directory containing the Kubernetes manifest files
                         dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
                             sh '''
                             echo 'Updating K8S deployment manifest...'
@@ -58,7 +59,7 @@ pipeline {
                             sed -i "s/32/${BUILD_NUMBER}/g" deploy.yaml
                             cat deploy.yaml
                             git add deploy.yaml
-                            git commit -m 'chore: update deploy.yaml | Jenkins pipeline'
+                            git commit -m 'chore: update deploy.yaml with build number ${BUILD_NUMBER}'
                             git remote -v
                             git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git HEAD:main
                             '''                        
@@ -67,5 +68,20 @@ pipeline {
                 }
             }
         }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                script {
+                    // Apply the Kubernetes manifest to deploy the application
+                    dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifest') {
+                        sh '''
+                        echo 'Deploying application to Kubernetes...'
+                        kubectl apply -f deploy.yaml
+                        '''
+                    }
+                }
+            }
+        }
     }
 }
+
