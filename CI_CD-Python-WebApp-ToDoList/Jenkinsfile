@@ -59,12 +59,15 @@ pipeline {
                         git config user.name "Weronika Stepien"
                         
                         BUILD_NUMBER=${BUILD_NUMBER}
+
+                        # Using 'sed' to replace the previous build number with the current build number
+                        sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         
                         # Calculating the previous build number
-                        PREVIOUS_BUILD=$((BUILD_NUMBER - 1))
+                        #PREVIOUS_BUILD=$((BUILD_NUMBER - 1))
                 
-                        # Using 'sed' to replace the previous build number with the current build number
-                        sed -i "s/${PREVIOUS_BUILD}/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
+                        
+                        #sed -i "s/${PREVIOUS_BUILD}/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         
                         #sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         
