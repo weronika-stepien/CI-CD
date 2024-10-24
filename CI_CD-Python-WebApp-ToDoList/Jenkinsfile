@@ -1,12 +1,18 @@
 pipeline {
-    agent any 
-    
+    agent {
+        docker {
+            image 'weronikastepien/cicd-todo:36' // Replace with your existing Docker image from DockerHub
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // Mount Docker socket for Docker commands
+        }
+    }
+
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
+        SONAR_URL = "http://localhost:9000" // Replace with your SonarQube instance URL
     }
-    
+
     stages {
         stage('Checkout') {
             steps {
@@ -14,6 +20,37 @@ pipeline {
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
+            }
+        }
+
+        stage('Install Sonar-Scanner') {
+            steps {
+                script {
+                    // Install sonar-scanner dynamically during the pipeline run
+                    sh '''
+                    apt-get update
+                    apt-get install -y wget unzip
+                    wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -O /tmp/sonar-scanner.zip
+                    unzip /tmp/sonar-scanner.zip -d /opt
+                    export PATH=$PATH:/opt/sonar-scanner-4.7.0.2747-linux/bin
+                    '''
+                }
+            }
+        }
+
+        stage('Static Code Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_AUTH_TOKEN')]) {
+                    dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
+                        sh '''
+                        sonar-scanner \
+                            -Dsonar.projectKey=CI_CD_Python_ToDoList \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=${SONAR_URL} \
+                            -Dsonar.login=$SONAR_AUTH_TOKEN
+                        '''
+                    }
+                }
             }
         }
 
@@ -60,7 +97,7 @@ pipeline {
                         
                         BUILD_NUMBER=${BUILD_NUMBER}
 
-                        # Using 'sed' to replace the previous build number with the current build number
+                        # Using 'sed' to replace the image tag with the current build number
                         sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                                             
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
