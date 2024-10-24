@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'weronikastepien/cicd-todo:36'
+            args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
 
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -12,7 +17,6 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Check out the source code from the main branch
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
@@ -26,11 +30,11 @@ pipeline {
                     sh '''
                     if ! command -v sonar-scanner &> /dev/null
                     then
-                        sudo apt-get update
-                        sudo apt-get install -y wget unzip
+                        apt-get update
+                        apt-get install -y wget unzip
                         wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -O /tmp/sonar-scanner.zip
-                        sudo unzip /tmp/sonar-scanner.zip -d /opt
-                        sudo ln -s /opt/sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner
+                        unzip /tmp/sonar-scanner.zip -d /opt
+                        ln -s /opt/sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner
                     fi
                     '''
                 }
@@ -57,7 +61,6 @@ pipeline {
             steps {
                 script {
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
-                        // Build the Docker image
                         sh '''
                         echo 'BUILD DOCKER IMAGE'
                         docker build -t ${DOCKER_IMAGE} -f Dockerfile .
@@ -100,7 +103,6 @@ pipeline {
         stage('Deploy to ArgoCD') {
             steps {
                 script {
-                    // Use curl to interact with ArgoCD, assuming credentials are stored in Jenkins
                     withCredentials([usernamePassword(credentialsId: 'argocd-cred', usernameVariable: 'ARGOCD_USERNAME', passwordVariable: 'ARGOCD_PASSWORD')]) {
                         sh '''
                         # Log in to ArgoCD
