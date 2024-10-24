@@ -14,9 +14,10 @@ RUN apt-get update && \
     ca-certificates \
     curl \
     gnupg2 \
+    lsb-release \
     software-properties-common wget unzip && \
     curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" && \
+    echo "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
     apt-get update && \
     apt-get install -y docker-ce-cli && \
     # Install SonarQube scanner
@@ -41,3 +42,4 @@ ENV DOCKER_HOST=unix:///var/run/docker.sock
 
 # Running the application
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
