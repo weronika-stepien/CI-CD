@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: todo-list
-        image: weronikastepien/cicd-todo:33
+        image: weronikastepien/cicd-todo:36
         ports:
           - containerPort: 8000
         env:
