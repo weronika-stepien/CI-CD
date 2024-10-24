@@ -1,14 +1,14 @@
 pipeline {
     agent {
         docker {
-            image 'weronikastepien/cicd-todo:36'
+            image 'weronikastepien/cicd-todo-docker:1'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
 
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
+        DOCKER_IMAGE = "weronikastepien/cicd-todo-docker:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
         SONAR_URL = "http://${env.SONAR_HOST}:9000" // SonarQube running on localhost or IP
         ARGOCD_URL = "${env.ARGOCD_URL}" // ArgoCD endpoint from Minikube
@@ -75,7 +75,7 @@ pipeline {
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
                         BUILD_NUMBER=${BUILD_NUMBER}
-                        sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
+                        sed -i "/image: weronikastepien\\/cicd-todo-docker:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
