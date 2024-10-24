@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
-        DOCKER_IMAGE = "weronikastepien/cicd-todo{BUILD_NUMBER}"
+        DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
         SONAR_URL = "http://${env.SONAR_HOST}:9000" // SonarQube running on localhost or IP
         ARGOCD_URL = "${env.ARGOCD_URL}" // ArgoCD endpoint from Minikube
@@ -40,10 +40,6 @@ pipeline {
         }
 
         stage('Build and Push Docker Image') {
-             environment {
-        DOCKER_IMAGE = "weronikastepien/cicd-todo-docker:${BUILD_NUMBER}"
-        REGISTRY_CREDENTIALS = credentials('docker-cred')
-      }
             steps {
                 script {
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
@@ -77,11 +73,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     sh '''
                         set -x
-                        apk add git || apt-get update && apt-get install -y git || yum install -y git
+                        #apk add git || apt-get update && apt-get install -y git || yum install -y git
+                        git --version
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
-                        BUILD_NUMBER=${BUILD_NUMBER}
-                        sed -i "/image: weronikastepien\\/cicd-todo-docker:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
+                        sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
