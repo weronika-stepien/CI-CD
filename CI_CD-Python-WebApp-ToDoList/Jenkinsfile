@@ -40,6 +40,10 @@ pipeline {
         }
 
         stage('Build and Push Docker Image') {
+             environment {
+        DOCKER_IMAGE = "weronikastepien/cicd-todo-docker:${BUILD_NUMBER}"
+        REGISTRY_CREDENTIALS = credentials('docker-cred')
+      }
             steps {
                 script {
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
