@@ -76,6 +76,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     sh '''
+                        apk add git || apt-get update && apt-get install -y git || yum install -y git
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
                         BUILD_NUMBER=${BUILD_NUMBER}
