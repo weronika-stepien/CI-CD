@@ -47,28 +47,24 @@ pipeline {
             }
         }
 
-        stage('Update K8S Manifest & Push Changes') {
+        stage('Update Deployment File') {
+            environment {
+                GIT_REPO_NAME = "CI-CD"
+                GIT_USER_NAME = "weronikastepien"
+            }
             steps {
-                script {
-                    withCredentials([usernamePassword(credentialsId: 'github-id', passwordVariable: 'GIT_PASSWORD', usernameVariable: 'GIT_USERNAME')]) {
-                        // Navigate to the directory containing the Kubernetes manifest files
-                        dir('CI_CD-Python-WebApp-ToDoList/ToDo_Manifests') {
-                            sh '''
-                            cat minikube-todo-deploy.yaml
-                	        sed -i "s/32/${BUILD_NUMBER}/g" minikube-todo-deploy.yaml
-                	        cat minikube-todo-deploy.yaml
-                            git config user.email "weronika.stepien.it@gmail.com"
-                            git config user.name "weronikastepien"
-                	        git add -A
-                	        git commit -am "CHORE: Updating minikube-todo-deploy.yaml with build number ${BUILD_NUMBER}"
-                	        git remote set-url origin https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/weronika-stepien/CI-CD.git
-                            git push origin HEAD:main
-                            '''                        
-                        }
-                    }
+                withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    sh '''
+                        git config user.email "weronika.stepien.it@gmail.com"
+                        git config user.name "Weronika Stepien"
+                        BUILD_NUMBER=${BUILD_NUMBER}
+                        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI-CD/CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yml
+                        git add CI-CD/CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yml
+                        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                    '''
                 }
             }
         }
     }
 }
-
