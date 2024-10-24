@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'weronikastepien/cicd-todo-docker:1'
+            image 'weronikastepien/cicd-todo-agent:1'
             args '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
@@ -48,7 +48,7 @@ pipeline {
                 script {
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
                         sh '''
-                        echo "BUILD DOCKER IMAGE"
+                        echo "BUILD DOCKER IMAGE FOR PYTHON APP"
                         docker build -t ${DOCKER_IMAGE} -f Dockerfile .
                         '''
                         def dockerImage = docker.image("${DOCKER_IMAGE}")
