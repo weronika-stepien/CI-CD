@@ -62,15 +62,7 @@ pipeline {
 
                         # Using 'sed' to replace the previous build number with the current build number
                         sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
-                        
-                        # Calculating the previous build number
-                        #PREVIOUS_BUILD=$((BUILD_NUMBER - 1))
-                
-                        
-                        #sed -i "s/${PREVIOUS_BUILD}/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
-                        
-                        #sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
-                        
+                                            
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
