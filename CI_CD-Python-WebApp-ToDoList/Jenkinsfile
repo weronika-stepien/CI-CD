@@ -10,8 +10,8 @@ pipeline {
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
-        SONAR_URL = "http://192.168.1.123:9000" // SonarQube running on localhost
-        ARGOCD_URL = "https://192.168.39.225:30754" // ArgoCD endpoint from Minikube
+        SONAR_URL = "http://${env.SONAR_HOST}:9000" // SonarQube running on localhost
+        ARGOCD_URL = "${env.ARGOCD_URL}" // ArgoCD endpoint from Minikube
     }
 
     stages {
