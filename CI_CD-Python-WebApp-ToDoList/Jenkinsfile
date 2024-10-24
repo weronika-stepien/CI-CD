@@ -1,16 +1,12 @@
 pipeline {
-    agent {
-        docker {
-            image 'weronikastepien/cicd-todo:36' // Replace with your existing Docker image from DockerHub
-            args '--user root -v /var/run/docker.sock:/var/run/docker.sock' // Mount Docker socket for Docker commands
-        }
-    }
+    agent any
 
     environment {
         IMAGE_TAG = "${BUILD_NUMBER}"
         DOCKER_IMAGE = "weronikastepien/cicd-todo:${BUILD_NUMBER}"
         REGISTRY_CREDENTIALS = credentials('docker-cred')
-        SONAR_URL = "http://localhost:9000" // Replace with your SonarQube instance URL
+        SONAR_URL = "http://localhost:9000" // SonarQube running on localhost
+        ARGOCD_URL = "https://192.168.39.225:30754" // ArgoCD endpoint from Minikube
     }
 
     stages {
@@ -26,13 +22,16 @@ pipeline {
         stage('Install Sonar-Scanner') {
             steps {
                 script {
-                    // Install sonar-scanner dynamically during the pipeline run
+                    // Install sonar-scanner dynamically during the pipeline run if not already available
                     sh '''
-                    apt-get update
-                    apt-get install -y wget unzip
-                    wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -O /tmp/sonar-scanner.zip
-                    unzip /tmp/sonar-scanner.zip -d /opt
-                    ln -s /opt/sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner
+                    if ! command -v sonar-scanner &> /dev/null
+                    then
+                        sudo apt-get update
+                        sudo apt-get install -y wget unzip
+                        wget -qO- https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.7.0.2747-linux.zip -O /tmp/sonar-scanner.zip
+                        sudo unzip /tmp/sonar-scanner.zip -d /opt
+                        sudo ln -s /opt/sonar-scanner-4.7.0.2747-linux/bin/sonar-scanner /usr/local/bin/sonar-scanner
+                    fi
                     '''
                 }
             }
@@ -57,18 +56,13 @@ pipeline {
         stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Navigate to the directory where the Dockerfile is located
                     dir('CI_CD-Python-WebApp-ToDoList/ToDo') {
                         // Build the Docker image
                         sh '''
                         echo 'BUILD DOCKER IMAGE'
                         docker build -t ${DOCKER_IMAGE} -f Dockerfile .
                         '''
-
-                        // Log in to Docker using credentials
                         sh "echo ${REGISTRY_CREDENTIALS_PSW} | docker login -u ${REGISTRY_CREDENTIALS_USR} --password-stdin"
-
-                        // Push the Docker image
                         sh "docker push ${DOCKER_IMAGE}"
                     }
                 }
@@ -77,7 +71,6 @@ pipeline {
 
         stage('Checkout K8S Manifest') {
             steps {
-                // Check out the repository again to access Kubernetes manifests
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
@@ -94,16 +87,31 @@ pipeline {
                     sh '''
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
-                        
                         BUILD_NUMBER=${BUILD_NUMBER}
-
-                        # Using 'sed' to replace the image tag with the current build number
                         sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
-                                            
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                     '''
+                }
+            }
+        }
+
+        stage('Deploy to ArgoCD') {
+            steps {
+                script {
+                    // Use curl to interact with ArgoCD, assuming credentials are stored in Jenkins
+                    withCredentials([usernamePassword(credentialsId: 'argocd-cred', usernameVariable: 'ARGOCD_USERNAME', passwordVariable: 'ARGOCD_PASSWORD')]) {
+                        sh '''
+                        # Log in to ArgoCD
+                        curl -k -X POST ${ARGOCD_URL}/api/v1/session -d '{"username": "'$ARGOCD_USERNAME'", "password": "'$ARGOCD_PASSWORD'"}' -H "Content-Type: application/json" | jq -r '.token' > /tmp/argocd-token
+
+                        # Deploy the application (assuming a pre-configured app in ArgoCD)
+                        curl -k -X POST ${ARGOCD_URL}/api/v1/applications/todo/sync \
+                        -H "Authorization: Bearer $(cat /tmp/argocd-token)" \
+                        -H "Content-Type: application/json"
+                        '''
+                    }
                 }
             }
         }
