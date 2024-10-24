@@ -61,7 +61,7 @@ pipeline {
                         sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                     '''
                 }
             }
