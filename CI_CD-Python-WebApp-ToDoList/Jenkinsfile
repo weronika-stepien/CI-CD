@@ -78,8 +78,8 @@ pipeline {
                     sh '''
                         set -x
                         apk add git || apt-get update && apt-get install -y git || yum install -y git
-                        #git config user.email "weronika.stepien.it@gmail.com"
-                        #git config user.name "Weronika Stepien"
+                        git config user.email "weronika.stepien.it@gmail.com"
+                        git config user.name "Weronika Stepien"
                         BUILD_NUMBER=${BUILD_NUMBER}
                         sed -i "/image: weronikastepien\\/cicd-todo-docker:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
