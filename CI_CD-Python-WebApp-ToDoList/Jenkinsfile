@@ -84,6 +84,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                     dir('CI_CD-Python-WebApp-ToDoList/CI_CD-Python-WebApp-ToDoList') {
+                    sh 'pwd'
                     sh '''
                         set -x
                         #apk add git || apt-get update && apt-get install -y git || yum install -y git
