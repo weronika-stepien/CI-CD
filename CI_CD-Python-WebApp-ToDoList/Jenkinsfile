@@ -83,19 +83,19 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    dir('CI_CD-Python-WebApp-ToDoList') {
-                    sh 'pwd'
-                    sh '''
-                        set -x
-                        git --version
+                     sh '''
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
+                        
+                        BUILD_NUMBER=${BUILD_NUMBER}
+
+                        # Using 'sed' to replace the previous build number with the current build number
                         sed -i "/image: weronikastepien\\/cicd-todo:/ s/:\\([0-9]\\+\\)/:${BUILD_NUMBER}/" CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
+                                            
                         git add CI_CD-Python-WebApp-ToDoList/ToDo_Manifests/minikube-todo-deploy.yaml
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                     '''
-                }
               }
             }
         }
