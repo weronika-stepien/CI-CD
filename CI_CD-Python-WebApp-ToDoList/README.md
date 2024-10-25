@@ -2,6 +2,8 @@
 
 # Jenkins CI/CD for ToDo List App
 
+![Pipline](https://github-repo-img.s3.eu-central-1.amazonaws.com/todo-pip.png)
+
 ![Sonar](https://github-repo-img.s3.eu-central-1.amazonaws.com/todo-sonar.png)
 
 ![Argo](https://github-repo-img.s3.eu-central-1.amazonaws.com/todo-argo.png)
