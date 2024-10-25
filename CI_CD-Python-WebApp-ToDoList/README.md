@@ -55,7 +55,7 @@ The architecture of the CI/CD setup includes:
 - Kubernetes: Manages deployment, scaling, and management of containerized applications.
 - ArgoCD: Handles application deployment and continuous delivery in Kubernetes.
 
-The CI/CD pipeline integrates these tools to provide a seamless workflow for building, testing, and deploying the Django 
+The CI/CD pipeline integrates these tools to provide a seamless workflow for building, testing, and deploying the Django app.
 
 ------------
 ## Pipeline Breakdown
