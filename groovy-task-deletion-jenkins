@@ -1,0 +1,17 @@
+// Specify the job name (replace 'ToDo' with your actual job name)
+def jobName = 'ToDo'
+
+// Get the job instance
+def job = Jenkins.instance.getItemByFullName(jobName)
+
+// Check if the job exists
+if (job != null) {
+    // Loop through all builds and delete them
+    job.getBuilds().each { build ->
+        println "Deleting build: ${build}"
+        build.delete()
+    }
+} else {
+    println "Job ${jobName} not found."
+}
+
