@@ -83,7 +83,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    dir('CI_CD-Python-WebApp-ToDoList') {
+                    dir('CI-CD') {
                      sh '''
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
