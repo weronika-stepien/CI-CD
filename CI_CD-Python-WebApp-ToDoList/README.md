@@ -24,7 +24,7 @@
 
 ![Static Badge](https://img.shields.io/badge/Table%20%20%20%20%20%20%20%20%20%20%20of%20%20%20%20%20%20%20%20%20%20Contents-blue?style=for-the-badge&logoColor=darkviolet)
 
-**| [Overview](#overview) | [Architecture](#architecture) | [Pipeline Breakdown](#pipeline-breakdown) | [Ongoing Improvements and Known Bugs](#ongoing-improvements-and-known-bugs) | [Found a Bug?](#found-a-bug) |**
+**| [Overview](#overview) | [Architecture](#architecture) | [Pipeline Breakdown](#pipeline-breakdown) |**
 
 
 
