@@ -72,6 +72,7 @@ pipeline {
                 git credentialsId: 'github-id', 
                     url: 'https://github.com/weronika-stepien/CI-CD.git',
                     branch: 'main'
+                sh 'ls -R'
             }
         }
 
@@ -82,7 +83,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                    dir('CI-CD-Python-WebApp-ToDoList') {
+                    dir('CI_CD-Python-WebApp-ToDoList/CI_CD-Python-WebApp-ToDoList') {
                     sh '''
                         set -x
                         #apk add git || apt-get update && apt-get install -y git || yum install -y git
