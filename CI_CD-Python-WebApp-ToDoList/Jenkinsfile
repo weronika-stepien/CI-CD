@@ -1,7 +1,7 @@
 pipeline {
     agent {
         docker {
-            image 'weronikastepien/cicd-todo-agent:1'
+            image 'weronikastepien/cicd-todo-agent:2'
              args '--user root --network="host" -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
