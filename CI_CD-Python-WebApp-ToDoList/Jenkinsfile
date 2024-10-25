@@ -83,6 +83,7 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+                    dir('CI_CD-Python-WebApp-ToDoList') {
                      sh '''
                         git config user.email "weronika.stepien.it@gmail.com"
                         git config user.name "Weronika Stepien"
@@ -96,6 +97,7 @@ pipeline {
                         git commit -m "JENKINS: Update deployment image to version ${BUILD_NUMBER}"
                         git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:main
                     '''
+                }
               }
             }
         }
